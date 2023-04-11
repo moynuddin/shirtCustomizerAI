@@ -1,6 +1,6 @@
-import express from 'express';
-import * as dotenv from 'dotenv';
-import { Configuration, OpenAIApi} from 'openai';
+import express from "express";
+import * as dotenv from "dotenv";
+import { Configuration, OpenAIApi } from "openai";
 
 dotenv.config();
 
@@ -12,28 +12,36 @@ const config = new Configuration({
 
 const openai = new OpenAIApi(config);
 
-router.route('/').get((req, res) => {
-  res.status(200).json({ message: "Hello from DALL.E ROUTES" })
-})
+// router.route("/").get((req, res) => {
+//   res.status(200).json({ message: "Hello from DALL.E ROUTES" });
+// });
 
-router.route('/').post(async (req, res) => {
+router.route("/").post(async (req, res) => {
   try {
     const { prompt } = req.body;
 
     const response = await openai.createImage({
-      prompt,
+      // model: "text-davinci-003",
+      prompt: "a white cat swimming",
       n: 1,
-      size: '1024x1024',
-      response_format: 'b64_json'
+      size: "1024x1024",
+      // response_format: "b64_json",
     });
 
-    const image = response.data.data[0].b64_json;
+    const image = response.data.data[0].url;
+    console.log("&&&&&&&&&&&&&&&&&&&&7", image);
 
-    res.status(200).json({ photo: image });
+    res.status(200).json({ message: "Successfuly get the text" });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Something went wrong" })
+    // console.error(error);
+    if (error.response) {
+      console.log("Error status", error.response.status);
+      console.log("Error data", error.response.data);
+    } else {
+      console.log(error.message);
+    }
+    res.status(500).json({ message: "Something went wrong" });
   }
-})
+});
 
 export default router;
